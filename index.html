@@ -1,0 +1,1066 @@
+<title>대화 리와인드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    color-scheme: light;
+    --page:        #f7f4ef;
+    --surface:     #ffffff;
+    --surface-2:   #efece4;
+    --ink:         #17140f;
+    --ink-soft:    #5c574c;
+    --ink-mute:    #948d7d;
+    --line:        #e4dfd3;
+    --accent:      #d8431f;
+    --accent-ink:  #ffffff;
+    --accent-soft: #fbe4da;
+
+    --cat-1: #2a78d6; /* blue    */
+    --cat-2: #eb6834; /* orange  */
+    --cat-3: #1baf7a; /* aqua    */
+    --cat-4: #eda100; /* yellow  */
+    --cat-5: #e87ba4; /* magenta */
+    --cat-6: #008300; /* green   */
+    --cat-7: #4a3aa7; /* violet  */
+    --cat-8: #e34948; /* red     */
+    --cat-other: #a39c8c;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page:        #100e0b;
+      --surface:     #1b1815;
+      --surface-2:   #221e19;
+      --ink:         #f7f4ee;
+      --ink-soft:    #c7bfae;
+      --ink-mute:    #8b8375;
+      --line:        #322c24;
+      --accent:      #ff7a52;
+      --accent-ink:  #1a0d08;
+      --accent-soft: #3a2018;
+
+      --cat-1: #3987e5;
+      --cat-2: #d95926;
+      --cat-3: #199e70;
+      --cat-4: #c98500;
+      --cat-5: #d55181;
+      --cat-6: #008300;
+      --cat-7: #9085e9;
+      --cat-8: #e66767;
+      --cat-other: #6f6a5c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:        #100e0b;
+    --surface:     #1b1815;
+    --surface-2:   #221e19;
+    --ink:         #f7f4ee;
+    --ink-soft:    #c7bfae;
+    --ink-mute:    #8b8375;
+    --line:        #322c24;
+    --accent:      #ff7a52;
+    --accent-ink:  #1a0d08;
+    --accent-soft: #3a2018;
+
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+    --cat-5: #d55181;
+    --cat-6: #008300;
+    --cat-7: #9085e9;
+    --cat-8: #e66767;
+    --cat-other: #6f6a5c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .display { font-family: "Do Hyeon", "Noto Sans KR", sans-serif; text-wrap: balance; }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* ---------- header ---------- */
+  .masthead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 34px;
+    flex-wrap: wrap;
+  }
+  .masthead h1 {
+    font-family: "Do Hyeon", sans-serif;
+    font-size: clamp(28px, 5vw, 38px);
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+  .masthead .tag {
+    font-size: 13px;
+    color: var(--ink-mute);
+  }
+
+  /* ---------- upload screen ---------- */
+  .intro {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin: 0 0 28px;
+  }
+  .privacy-note {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--accent-soft);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 26px;
+  }
+  .privacy-note strong { color: var(--ink); }
+
+  .dropzone {
+    border: 2px dashed var(--line);
+    border-radius: 18px;
+    padding: 44px 24px;
+    text-align: center;
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  }
+  .dropzone:hover { border-color: var(--accent); }
+  .dropzone.drag {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    transform: scale(1.01);
+  }
+  .dropzone .icon { font-size: 34px; margin-bottom: 10px; }
+  .dropzone .primary { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .dropzone .secondary { font-size: 13px; color: var(--ink-mute); }
+  .dropzone input[type=file] { display: none; }
+
+  .format-hint {
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .chip {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    background: var(--surface);
+  }
+
+  .paste-toggle {
+    margin-top: 18px;
+    text-align: center;
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-family: inherit;
+    padding: 4px;
+  }
+  .paste-area {
+    display: none;
+    margin-top: 14px;
+  }
+  .paste-area.show { display: block; }
+  .paste-area textarea {
+    width: 100%;
+    min-height: 140px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    padding: 12px;
+    resize: vertical;
+  }
+  .btn {
+    appearance: none;
+    border: none;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 11px 22px;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+  }
+  .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+
+  .error-box {
+    display: none;
+    margin-top: 18px;
+    border: 1px solid var(--cat-8);
+    background: var(--accent-soft);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .error-box.show { display: block; }
+
+  /* ---------- results ---------- */
+  #results { display: none; }
+  #results.show { display: block; animation: rise 0.5s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .toolbar .meta { font-size: 12.5px; color: var(--ink-mute); }
+  .toolbar .meta b { color: var(--ink-soft); }
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 26px 24px;
+    margin-bottom: 18px;
+  }
+  .card h2 {
+    font-family: "Do Hyeon", sans-serif;
+    font-size: 19px;
+    margin: 0 0 4px;
+    letter-spacing: 0.2px;
+  }
+  .card .sub {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    margin: 0 0 18px;
+  }
+
+  /* hero stat */
+  .hero-stat {
+    background: linear-gradient(180deg, var(--accent-soft), transparent);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .hero-stat .eyebrow {
+    font-size: 12.5px;
+    letter-spacing: 1.5px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+  .hero-stat .name {
+    font-family: "Do Hyeon", sans-serif;
+    font-size: clamp(34px, 9vw, 56px);
+    color: var(--accent);
+    margin: 6px 0 2px;
+    line-height: 1.1;
+  }
+  .hero-stat .detail {
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .hero-stat .detail b { font-family: "JetBrains Mono", monospace; color: var(--ink); }
+
+  /* stat tiles */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .tile {
+    background: var(--surface-2);
+    border-radius: 14px;
+    padding: 14px 14px 12px;
+  }
+  .tile .val {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .tile .lbl {
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    margin-top: 3px;
+  }
+
+  /* bar rows (sender chart, emoji chart) */
+  .bar-row {
+    display: grid;
+    grid-template-columns: 92px 1fr 56px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 9px;
+    font-size: 13px;
+  }
+  .bar-row .label {
+    color: var(--ink-soft);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bar-row .track {
+    height: 16px;
+    background: var(--surface-2);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-row .fill {
+    height: 100%;
+    border-radius: 8px;
+    width: 0%;
+    transition: width 0.7s cubic-bezier(.2,.7,.2,1);
+  }
+  .bar-row .count {
+    font-family: "JetBrains Mono", monospace;
+    text-align: right;
+    color: var(--ink-mute);
+    font-size: 12px;
+  }
+
+  .emoji-row { grid-template-columns: 44px 1fr 56px; }
+  .emoji-row .glyph { font-size: 22px; text-align: center; }
+
+  /* hour chart */
+  .hour-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 120px;
+    margin-top: 6px;
+  }
+  .hour-chart .col {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+  }
+  .hour-chart .bar {
+    width: 100%;
+    background: var(--accent);
+    border-radius: 4px 4px 0 0;
+    min-height: 2px;
+    height: 0%;
+    transition: height 0.7s cubic-bezier(.2,.7,.2,1);
+    cursor: default;
+  }
+  .hour-axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    margin-top: 6px;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  /* heatmap */
+  .heatmap { margin-top: 8px; }
+  .heat-row { display: flex; align-items: center; gap: 3px; margin-bottom: 3px; }
+  .heat-row .day-lbl {
+    width: 24px;
+    font-size: 11px;
+    color: var(--ink-mute);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .heat-cell {
+    flex: 1;
+    aspect-ratio: 1;
+    border-radius: 3px;
+    background: var(--surface-2);
+    position: relative;
+    cursor: default;
+  }
+  .heat-cell .fill {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    background: var(--cat-1);
+    opacity: 0;
+  }
+  .heat-axis {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+    padding-left: 27px;
+    font-size: 9.5px;
+    color: var(--ink-mute);
+    font-family: "JetBrains Mono", monospace;
+  }
+  .heat-axis span { flex: 1; text-align: center; }
+
+  /* tooltip */
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--ink);
+    color: var(--page);
+    font-size: 11.5px;
+    padding: 5px 9px;
+    border-radius: 7px;
+    transform: translate(-50%, -130%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    z-index: 50;
+    font-family: "JetBrains Mono", monospace;
+  }
+  #tooltip.show { opacity: 1; }
+
+  /* table view */
+  .table-toggle { margin-top: 4px; }
+  .table-view { display: none; margin-top: 14px; overflow-x: auto; }
+  .table-view.show { display: block; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  table caption { text-align: left; font-weight: 700; margin-bottom: 6px; color: var(--ink-soft); }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--ink-mute); font-weight: 500; font-size: 11.5px; }
+  td.num { font-family: "JetBrains Mono", monospace; text-align: right; }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-mute);
+    margin-top: 30px;
+    line-height: 1.7;
+  }
+
+  .legend-note {
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    margin-top: 10px;
+  }
+
+  a { color: var(--accent); }
+</style>
+
+<div class="wrap">
+  <div class="masthead">
+    <h1>대화 리와인드</h1>
+    <span class="tag">채팅 내보내기 파일로 보는 나만의 대화 통계</span>
+  </div>
+
+  <div id="uploadScreen">
+    <p class="intro">카카오톡이나 디스코드에서 내보낸 대화 파일을 올리면 누가 가장 말이 많았는지, 어떤 이모지를 즐겨 쓰는지, 언제 가장 활발히 떠들었는지를 한눈에 보여드려요.</p>
+
+    <div class="privacy-note">
+      🔒
+      <span><strong>파일은 이 브라우저 밖으로 나가지 않아요.</strong><br>모든 분석은 기기 안에서만 처리되고 어디로도 전송되지 않습니다. 페이지를 새로고침하면 결과와 파일 내용 모두 사라져요.</span>
+    </div>
+
+    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="대화 파일 올리기">
+      <div class="icon">💬</div>
+      <div class="primary">여기로 파일을 끌어다 놓거나 클릭해서 선택하세요</div>
+      <div class="secondary">카카오톡 PC·모바일 내보내기(.txt), 디스코드 내보내기(.txt / .csv)</div>
+      <input type="file" id="fileInput" accept=".txt,.csv,.json,text/plain,text/csv">
+    </div>
+
+    <div class="format-hint">
+      <span class="chip">카카오톡 PC .txt</span>
+      <span class="chip">카카오톡 모바일 .txt</span>
+      <span class="chip">DiscordChatExporter .txt</span>
+      <span class="chip">DiscordChatExporter .csv</span>
+    </div>
+
+    <div class="paste-toggle">
+      <button class="link-btn" id="pasteToggleBtn">파일 대신 텍스트를 붙여넣을게요</button>
+    </div>
+    <div class="paste-area" id="pasteArea">
+      <textarea id="pasteText" placeholder="내보낸 대화 내용을 여기에 붙여넣으세요"></textarea>
+      <div class="btn-row">
+        <button class="btn" id="analyzePasteBtn">이 텍스트 분석하기</button>
+      </div>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div id="results">
+    <div class="toolbar">
+      <span class="meta" id="metaLine"></span>
+      <button class="btn ghost" id="resetBtn">다른 파일 분석하기</button>
+    </div>
+
+    <div class="hero-stat">
+      <div class="eyebrow">최다 발화자</div>
+      <div class="name" id="topName">-</div>
+      <div class="detail" id="topDetail"></div>
+    </div>
+
+    <section class="card">
+      <h2>누가 제일 말이 많았을까</h2>
+      <p class="sub">전체 메시지 수 기준 발신자 순위</p>
+      <div id="senderChart"></div>
+      <div class="legend-note">막대 색은 순위를 구분하기 위한 것으로, 이름은 항상 막대 위에 직접 표시돼요.</div>
+    </section>
+
+    <section class="card">
+      <h2>자주 쓴 이모지</h2>
+      <p class="sub">유니코드 이모지 기준 상위 10개 (카카오 자체 이모티콘·스티커는 집계되지 않아요)</p>
+      <div id="emojiChart"></div>
+      <div id="emojiEmpty" style="display:none; font-size:13px; color:var(--ink-mute);">이모지를 거의 안 쓰시네요! 텍스트파 인정.</div>
+    </section>
+
+    <section class="card">
+      <h2>시간대별 활동</h2>
+      <p class="sub">하루 24시간 중 언제 가장 활발했는지</p>
+      <div class="hour-chart" id="hourChart"></div>
+      <div class="hour-axis">
+        <span>0시</span><span>3시</span><span>6시</span><span>9시</span><span>12시</span><span>15시</span><span>18시</span><span>21시</span><span>24시</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>요일 × 시간 히트맵</h2>
+      <p class="sub">진할수록 그 시간대에 메시지가 많았다는 뜻이에요</p>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heat-axis">
+        <span>0</span><span>3</span><span>6</span><span>9</span><span>12</span><span>15</span><span>18</span><span>21</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>재미로 보는 지표</h2>
+      <div class="tiles" id="statTiles"></div>
+    </section>
+
+    <section class="card">
+      <div class="table-toggle">
+        <button class="link-btn" id="tableToggleBtn">숫자로 자세히 보기 (표)</button>
+      </div>
+      <div class="table-view" id="tableView"></div>
+    </section>
+  </div>
+
+  <footer>
+    파일은 서버로 전송되지 않고 브라우저 안에서만 계산돼요 · 재미로 보는 통계이니 너무 진지하게 받아들이지 마세요 🙂
+  </footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CAT_VARS = ['--cat-1','--cat-2','--cat-3','--cat-4','--cat-5','--cat-6','--cat-7','--cat-8'];
+
+  // ---------------- utilities ----------------
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function buildDate(y, mo, d, ampm, h, min) {
+    h = parseInt(h, 10);
+    if (ampm === '오후' && h < 12) h += 12;
+    if (ampm === '오전' && h === 12) h = 0;
+    return new Date(parseInt(y,10), parseInt(mo,10)-1, parseInt(d,10), h, parseInt(min,10), 0);
+  }
+
+  function extractEmojis(text) {
+    if (!text) return [];
+    var out = [];
+    var reEmoji = /\p{Extended_Pictographic}/u;
+    try {
+      var seg = new Intl.Segmenter('en', { granularity: 'grapheme' });
+      for (var part of seg.segment(text)) {
+        if (reEmoji.test(part.segment)) out.push(part.segment);
+      }
+    } catch (e) {
+      var m = text.match(/\p{Extended_Pictographic}/gu);
+      if (m) out = m;
+    }
+    return out;
+  }
+
+  // ---------------- parsers ----------------
+  function parseKakao(text) {
+    var lines = text.split(/\r?\n/);
+    var messages = [];
+    var currentDate = null;
+    var current = null;
+
+    var rePC1 = /^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*(?:[월화수목금토일]요일\s*)?(오전|오후)\s*(\d{1,2}):(\d{2}),\s*(.+?)\s*:\s*(.*)$/;
+    var rePC2 = /^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.\s*(오전|오후)\s*(\d{1,2}):(\d{2}),\s*(.+?)\s*:\s*(.*)$/;
+    var reDateDivider = /^-{2,}\s*(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*[월화수목금토일]요일\s*-{2,}$/;
+    var reDateDividerBare = /^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*[월화수목금토일]요일$/;
+    var reMobile = /^\[(.+?)\]\s*\[(오전|오후)\s*(\d{1,2}):(\d{2})\]\s*([\s\S]*)$/;
+
+    function flush() {
+      if (current) {
+        messages.push({ sender: current.sender, ts: current.ts, text: current.parts.join('\n').trim() });
+        current = null;
+      }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].replace(/​/g, '').replace(/\r$/, '');
+      var trimmed = line.trim();
+      var m;
+      if ((m = reDateDivider.exec(trimmed)) || (m = reDateDividerBare.exec(trimmed))) {
+        currentDate = { y: m[1], mo: m[2], d: m[3] };
+        continue;
+      }
+      if ((m = rePC1.exec(trimmed)) || (m = rePC2.exec(trimmed))) {
+        flush();
+        current = { sender: m[7].trim(), ts: buildDate(m[1], m[2], m[3], m[4], m[5], m[6]), parts: [m[8]] };
+        continue;
+      }
+      if (currentDate && (m = reMobile.exec(trimmed))) {
+        flush();
+        current = { sender: m[1].trim(), ts: buildDate(currentDate.y, currentDate.mo, currentDate.d, m[2], m[3], m[4]), parts: [m[5]] };
+        continue;
+      }
+      if (current && trimmed !== '') {
+        current.parts.push(line);
+      }
+    }
+    flush();
+    return messages;
+  }
+
+  function parseDiscordTxt(text) {
+    var lines = text.split(/\r?\n/);
+    var messages = [];
+    var current = null;
+    var reHeader = /^\[(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)\]\s*(.+?)\s*$/i;
+    var reHeaderISO = /^\[(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\]\s*(.+?)\s*$/;
+
+    function flush() {
+      if (current) {
+        messages.push({ sender: current.sender, ts: current.ts, text: current.parts.join('\n').trim() });
+        current = null;
+      }
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].replace(/\r$/, '');
+      var m;
+      if ((m = reHeader.exec(line))) {
+        flush();
+        var h = parseInt(m[4], 10);
+        var ampm = m[6].toUpperCase();
+        if (ampm === 'PM' && h < 12) h += 12;
+        if (ampm === 'AM' && h === 12) h = 0;
+        var ts = new Date(parseInt(m[3],10), parseInt(m[1],10)-1, parseInt(m[2],10), h, parseInt(m[5],10), 0);
+        current = { sender: m[7].replace(/\s*\(.*?\)\s*$/, '').trim(), ts: ts, parts: [] };
+        continue;
+      }
+      if ((m = reHeaderISO.exec(line))) {
+        flush();
+        var ts2 = new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10), parseInt(m[4],10), parseInt(m[5],10), parseInt(m[6],10));
+        current = { sender: m[7].replace(/\s*\(.*?\)\s*$/, '').trim(), ts: ts2, parts: [] };
+        continue;
+      }
+      if (/^=+$/.test(line.trim()) || /^(Guild|Channel):/.test(line.trim())) continue;
+      if (current) {
+        if (line.trim() === '') continue;
+        current.parts.push(line);
+      }
+    }
+    flush();
+    return messages;
+  }
+
+  function parseCSV(text) {
+    var rows = [];
+    var row = [];
+    var field = '';
+    var inQuotes = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i+1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+        } else field += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else if (c === '\r') { /* skip */ }
+        else field += c;
+      }
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  function parseDiscordCSV(text) {
+    var rows = parseCSV(text);
+    if (rows.length < 2) return [];
+    var header = rows[0].map(function (h) { return h.trim().toLowerCase(); });
+    var authorIdx = header.indexOf('author');
+    var dateIdx = header.indexOf('date');
+    var contentIdx = header.indexOf('content');
+    if (authorIdx === -1 || dateIdx === -1 || contentIdx === -1) return [];
+    var messages = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r || r.length < 2) continue;
+      var ts = new Date(r[dateIdx]);
+      if (isNaN(ts.getTime())) continue;
+      messages.push({ sender: (r[authorIdx] || '').trim(), ts: ts, text: r[contentIdx] || '' });
+    }
+    return messages;
+  }
+
+  function parseAny(text, filename) {
+    text = text.replace(/^﻿/, '');
+    var isCSV = /\.csv$/i.test(filename || '');
+    var candidates = [];
+    if (isCSV) {
+      candidates.push(parseDiscordCSV(text));
+      candidates.push(parseKakao(text));
+      candidates.push(parseDiscordTxt(text));
+    } else {
+      candidates.push(parseKakao(text));
+      candidates.push(parseDiscordTxt(text));
+      candidates.push(parseDiscordCSV(text));
+    }
+    var best = [];
+    for (var i = 0; i < candidates.length; i++) {
+      if (candidates[i].length > best.length) best = candidates[i];
+    }
+    return best.filter(function (m) { return m.sender && m.ts && !isNaN(m.ts.getTime()); });
+  }
+
+  // ---------------- stats ----------------
+  function computeStats(messages) {
+    var bySender = new Map();
+    var emojiCounts = new Map();
+    var hourCounts = new Array(24).fill(0);
+    var weekdayHour = [];
+    for (var i = 0; i < 7; i++) weekdayHour.push(new Array(24).fill(0));
+    var totalChars = 0;
+    var minDate = null, maxDate = null;
+    var dayCounts = new Map();
+    var nightCount = 0;
+
+    messages.forEach(function (msg) {
+      bySender.set(msg.sender, (bySender.get(msg.sender) || 0) + 1);
+      var hr = msg.ts.getHours();
+      hourCounts[hr]++;
+      if (hr < 6) nightCount++;
+      var idx = (msg.ts.getDay() + 6) % 7;
+      weekdayHour[idx][hr]++;
+      totalChars += (msg.text || '').length;
+      if (!minDate || msg.ts < minDate) minDate = msg.ts;
+      if (!maxDate || msg.ts > maxDate) maxDate = msg.ts;
+      var dayKey = msg.ts.getFullYear() + '-' + pad2(msg.ts.getMonth()+1) + '-' + pad2(msg.ts.getDate());
+      dayCounts.set(dayKey, (dayCounts.get(dayKey) || 0) + 1);
+      extractEmojis(msg.text).forEach(function (e) {
+        emojiCounts.set(e, (emojiCounts.get(e) || 0) + 1);
+      });
+    });
+
+    var senders = Array.from(bySender.entries()).sort(function (a, b) { return b[1] - a[1]; });
+    var emojis = Array.from(emojiCounts.entries()).sort(function (a, b) { return b[1] - a[1]; });
+    var busiestDayEntry = Array.from(dayCounts.entries()).sort(function (a, b) { return b[1] - a[1]; })[0] || null;
+    var weekdayTotals = weekdayHour.map(function (row) { return row.reduce(function (a, b) { return a + b; }, 0); });
+    var busiestWeekdayIdx = weekdayTotals.indexOf(Math.max.apply(null, weekdayTotals));
+
+    return {
+      total: messages.length,
+      senders: senders,
+      emojis: emojis,
+      hourCounts: hourCounts,
+      weekdayHour: weekdayHour,
+      weekdayTotals: weekdayTotals,
+      busiestWeekdayIdx: busiestWeekdayIdx,
+      avgLen: messages.length ? Math.round(totalChars / messages.length) : 0,
+      minDate: minDate,
+      maxDate: maxDate,
+      busiestDay: busiestDayEntry,
+      nightRatio: messages.length ? nightCount / messages.length : 0
+    };
+  }
+
+  // ---------------- rendering ----------------
+  var WEEKDAY_LABELS = ['월','화','수','목','금','토','일'];
+
+  var tooltipEl = document.getElementById('tooltip');
+  function showTooltip(x, y, text) {
+    tooltipEl.textContent = text;
+    tooltipEl.style.left = x + 'px';
+    tooltipEl.style.top = y + 'px';
+    tooltipEl.classList.add('show');
+  }
+  function hideTooltip() { tooltipEl.classList.remove('show'); }
+
+  function fmt(n) { return n.toLocaleString('ko-KR'); }
+  function fmtDate(d) { return d.getFullYear() + '.' + pad2(d.getMonth()+1) + '.' + pad2(d.getDate()); }
+
+  function render(stats) {
+    // meta line
+    var days = 1;
+    if (stats.minDate && stats.maxDate) {
+      days = Math.max(1, Math.round((stats.maxDate - stats.minDate) / 86400000) + 1);
+    }
+    document.getElementById('metaLine').innerHTML =
+      '<b class="mono">' + fmt(stats.total) + '</b>개의 메시지 · 참여 ' + stats.senders.length + '명 · ' +
+      (stats.minDate ? fmtDate(stats.minDate) + ' ~ ' + fmtDate(stats.maxDate) : '');
+
+    // hero
+    if (stats.senders.length) {
+      var top = stats.senders[0];
+      var pct = stats.total ? Math.round((top[1] / stats.total) * 1000) / 10 : 0;
+      document.getElementById('topName').textContent = top[0];
+      document.getElementById('topDetail').innerHTML =
+        '<b class="mono">' + fmt(top[1]) + '</b>개 메시지 · 전체의 <b class="mono">' + pct + '%</b>';
+    }
+
+    // sender chart
+    var senderWrap = document.getElementById('senderChart');
+    senderWrap.innerHTML = '';
+    var topSenders = stats.senders.slice(0, 8);
+    var rest = stats.senders.slice(8);
+    var restTotal = rest.reduce(function (a, e) { return a + e[1]; }, 0);
+    var items = topSenders.map(function (e, i) {
+      return { name: e[0], count: e[1], color: 'var(' + CAT_VARS[i] + ')' };
+    });
+    if (restTotal > 0) items.push({ name: '기타 ' + rest.length + '명', count: restTotal, color: 'var(--cat-other)' });
+    var maxCount = Math.max.apply(null, items.map(function (i) { return i.count; }));
+    items.forEach(function (it) {
+      var row = document.createElement('div');
+      row.className = 'bar-row';
+      row.innerHTML =
+        '<div class="label" title="' + it.name + '">' + it.name + '</div>' +
+        '<div class="track"><div class="fill" style="background:' + it.color + '"></div></div>' +
+        '<div class="count mono">' + fmt(it.count) + '</div>';
+      senderWrap.appendChild(row);
+      requestAnimationFrame(function () {
+        row.querySelector('.fill').style.width = Math.max(3, (it.count / maxCount) * 100) + '%';
+      });
+    });
+
+    // emoji chart
+    var emojiWrap = document.getElementById('emojiChart');
+    emojiWrap.innerHTML = '';
+    var topEmoji = stats.emojis.slice(0, 10);
+    document.getElementById('emojiEmpty').style.display = topEmoji.length ? 'none' : 'block';
+    if (topEmoji.length) {
+      var maxEmoji = topEmoji[0][1];
+      topEmoji.forEach(function (e) {
+        var row = document.createElement('div');
+        row.className = 'bar-row emoji-row';
+        row.innerHTML =
+          '<div class="glyph">' + e[0] + '</div>' +
+          '<div class="track"><div class="fill" style="background:var(--accent)"></div></div>' +
+          '<div class="count mono">' + fmt(e[1]) + '</div>';
+        emojiWrap.appendChild(row);
+        requestAnimationFrame(function () {
+          row.querySelector('.fill').style.width = Math.max(3, (e[1] / maxEmoji) * 100) + '%';
+        });
+      });
+    }
+
+    // hour chart
+    var hourWrap = document.getElementById('hourChart');
+    hourWrap.innerHTML = '';
+    var maxHour = Math.max.apply(null, stats.hourCounts) || 1;
+    stats.hourCounts.forEach(function (c, hr) {
+      var col = document.createElement('div');
+      col.className = 'col';
+      var bar = document.createElement('div');
+      bar.className = 'bar';
+      col.appendChild(bar);
+      col.addEventListener('mousemove', function (ev) {
+        showTooltip(ev.clientX, ev.clientY, hr + '시: ' + fmt(c) + '건');
+      });
+      col.addEventListener('mouseleave', hideTooltip);
+      hourWrap.appendChild(col);
+      requestAnimationFrame(function () {
+        bar.style.height = Math.max(2, (c / maxHour) * 100) + '%';
+      });
+    });
+
+    // heatmap
+    var heatWrap = document.getElementById('heatmap');
+    heatWrap.innerHTML = '';
+    var maxCell = 0;
+    stats.weekdayHour.forEach(function (row) { row.forEach(function (v) { if (v > maxCell) maxCell = v; }); });
+    maxCell = maxCell || 1;
+    stats.weekdayHour.forEach(function (row, dIdx) {
+      var rowEl = document.createElement('div');
+      rowEl.className = 'heat-row';
+      rowEl.innerHTML = '<div class="day-lbl">' + WEEKDAY_LABELS[dIdx] + '</div>';
+      row.forEach(function (v, hr) {
+        var cell = document.createElement('div');
+        cell.className = 'heat-cell';
+        var fillEl = document.createElement('div');
+        fillEl.className = 'fill';
+        fillEl.style.opacity = v ? Math.max(0.12, v / maxCell) : 0;
+        cell.appendChild(fillEl);
+        cell.addEventListener('mousemove', function (ev) {
+          showTooltip(ev.clientX, ev.clientY, WEEKDAY_LABELS[dIdx] + '요일 ' + hr + '시: ' + fmt(v) + '건');
+        });
+        cell.addEventListener('mouseleave', hideTooltip);
+        rowEl.appendChild(cell);
+      });
+      heatWrap.appendChild(rowEl);
+    });
+
+    // stat tiles
+    var tilesWrap = document.getElementById('statTiles');
+    var nightPct = Math.round(stats.nightRatio * 1000) / 10;
+    var busiestDayLabel = stats.busiestDay ? stats.busiestDay[0] + ' (' + fmt(stats.busiestDay[1]) + '건)' : '-';
+    var tiles = [
+      { val: fmt(stats.total), lbl: '총 메시지' },
+      { val: String(stats.senders.length), lbl: '참여 인원' },
+      { val: String(days), lbl: '분석 기간(일)' },
+      { val: String(stats.avgLen), lbl: '평균 메시지 길이(자)' },
+      { val: WEEKDAY_LABELS[stats.busiestWeekdayIdx] + '요일', lbl: '가장 활발한 요일' },
+      { val: nightPct + '%', lbl: '심야(0~6시) 메시지 비율' }
+    ];
+    tilesWrap.innerHTML = tiles.map(function (t) {
+      return '<div class="tile"><div class="val mono">' + t.val + '</div><div class="lbl">' + t.lbl + '</div></div>';
+    }).join('');
+
+    // table view
+    var tableWrap = document.getElementById('tableView');
+    var senderRows = stats.senders.map(function (e) {
+      var pct = stats.total ? Math.round((e[1] / stats.total) * 1000) / 10 : 0;
+      return '<tr><td>' + e[0] + '</td><td class="num">' + fmt(e[1]) + '</td><td class="num">' + pct + '%</td></tr>';
+    }).join('');
+    var hourRows = stats.hourCounts.map(function (c, hr) {
+      return '<tr><td>' + hr + '시</td><td class="num">' + fmt(c) + '</td></tr>';
+    }).join('');
+    var emojiRows = stats.emojis.slice(0, 20).map(function (e) {
+      return '<tr><td>' + e[0] + '</td><td class="num">' + fmt(e[1]) + '</td></tr>';
+    }).join('');
+    tableWrap.innerHTML =
+      '<table><caption>발신자별 메시지 수</caption><thead><tr><th>이름</th><th>메시지 수</th><th>비율</th></tr></thead><tbody>' + senderRows + '</tbody></table>' +
+      '<br><table><caption>시간대별 메시지 수</caption><thead><tr><th>시간</th><th>메시지 수</th></tr></thead><tbody>' + hourRows + '</tbody></table>' +
+      (emojiRows ? '<br><table><caption>이모지 빈도 (상위 20개)</caption><thead><tr><th>이모지</th><th>횟수</th></tr></thead><tbody>' + emojiRows + '</tbody></table>' : '');
+  }
+
+  // ---------------- flow control ----------------
+  var uploadScreen = document.getElementById('uploadScreen');
+  var resultsScreen = document.getElementById('results');
+  var errorBox = document.getElementById('errorBox');
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.classList.add('show');
+  }
+  function clearError() {
+    errorBox.classList.remove('show');
+  }
+
+  function runAnalysis(text, filename) {
+    clearError();
+    var messages = parseAny(text, filename || '');
+    if (!messages.length) {
+      showError('대화 내용을 인식하지 못했어요. 카카오톡 PC/모바일 내보내기(.txt) 또는 디스코드 DiscordChatExporter 내보내기(.txt, .csv) 형식인지 확인해 주세요.');
+      return;
+    }
+    var stats = computeStats(messages);
+    render(stats);
+    uploadScreen.style.display = 'none';
+    resultsScreen.classList.add('show');
+  }
+
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+
+  dropzone.addEventListener('click', function () { fileInput.click(); });
+  dropzone.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
+  ['dragenter', 'dragover'].forEach(function (evt) {
+    dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add('drag'); });
+  });
+  ['dragleave', 'drop'].forEach(function (evt) {
+    dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.remove('drag'); });
+  });
+  dropzone.addEventListener('drop', function (e) {
+    var f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  });
+  fileInput.addEventListener('change', function () {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () { runAnalysis(String(reader.result), file.name); };
+    reader.onerror = function () { showError('파일을 읽는 중 문제가 생겼어요. 다시 시도해 주세요.'); };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  document.getElementById('pasteToggleBtn').addEventListener('click', function () {
+    document.getElementById('pasteArea').classList.toggle('show');
+  });
+  document.getElementById('analyzePasteBtn').addEventListener('click', function () {
+    var text = document.getElementById('pasteText').value;
+    if (!text.trim()) { showError('붙여넣은 텍스트가 없어요.'); return; }
+    runAnalysis(text, '');
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    resultsScreen.classList.remove('show');
+    uploadScreen.style.display = '';
+    fileInput.value = '';
+    document.getElementById('pasteText').value = '';
+    document.getElementById('pasteArea').classList.remove('show');
+    clearError();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.getElementById('tableToggleBtn').addEventListener('click', function () {
+    document.getElementById('tableView').classList.toggle('show');
+  });
+})();
+</script>
